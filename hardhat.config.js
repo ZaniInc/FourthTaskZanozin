@@ -1,6 +1,7 @@
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-web3");
 require("@nomiclabs/hardhat-truffle5");
+require('solidity-coverage');
 
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
