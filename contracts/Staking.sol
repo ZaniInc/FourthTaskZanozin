@@ -161,9 +161,7 @@ contract Staking is Ownable, IStaking {
             "Error : your stake value too high"
         );
         stakingTotalAmount += amount_;
-        if (investorList[msg.sender].startDate > 0) {
-            investorList[msg.sender].startDate += 0;
-        } else {
+        if (investorList[msg.sender].startDate == 0) {
             investorList[msg.sender].startDate = block.timestamp;
         }
         investorList[msg.sender].lastTimeStake = block.timestamp;
@@ -213,7 +211,9 @@ contract Staking is Ownable, IStaking {
      */
     function _updateReward(address caller_) internal {
         rewardPerTokenStored = _rewardPerToken();
-        lastTimeUpdate = block.timestamp;
+        lastTimeUpdate = block.timestamp >= stakingParams.stakingFinishDate
+            ? stakingParams.stakingFinishDate
+            : block.timestamp;
         investorList[caller_].reward = _earned(caller_);
         investorList[caller_].userRewardPerTokens = rewardPerTokenStored;
     }
@@ -224,12 +224,15 @@ contract Staking is Ownable, IStaking {
     function _rewardPerToken() internal view returns (uint256) {
         uint256 rewardRate = ((stakingTotalAmount * apr) /
             ONE_HUNDRED_PERCENT) / 365 days;
+        uint256 actualTime = block.timestamp >= stakingParams.stakingFinishDate
+            ? stakingParams.stakingFinishDate
+            : block.timestamp;
         if (stakingTotalAmount == 0) {
             return 0;
         } else {
             return
                 rewardPerTokenStored +
-                ((rewardRate * (block.timestamp - lastTimeUpdate) * 1e18)) /
+                ((rewardRate * (actualTime - lastTimeUpdate) * 1e18)) /
                 stakingTotalAmount;
         }
     }
@@ -238,19 +241,10 @@ contract Staking is Ownable, IStaking {
      * @dev calculate how many reward collected by each user
      */
     function _earned(address caller_) internal view returns (uint256) {
-        if (block.timestamp < stakingParams.stakingFinishDate) {
-            return
-                (investorList[caller_].stakingAmount *
-                    (rewardPerTokenStored -
-                        investorList[caller_].userRewardPerTokens)) / 1e18;
-        }
-        if (block.timestamp >= stakingParams.stakingFinishDate) {
-            uint256 rewardRate = ((investorList[caller_].stakingAmount * apr) /
-                ONE_HUNDRED_PERCENT) / 365 days;
-            return
-                rewardRate *
-                (stakingParams.stakingFinishDate -
-                    investorList[caller_].startDate);
-        }
+        return
+            ((investorList[caller_].stakingAmount *
+                (rewardPerTokenStored -
+                    investorList[caller_].userRewardPerTokens)) / 1e18) +
+            investorList[caller_].reward;
     }
 }

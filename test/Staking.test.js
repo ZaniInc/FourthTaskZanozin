@@ -292,7 +292,7 @@ contract("Staking", async ([owner, acc2, acc3, acc4, acc5, acc6]) => {
         let balanceAfter = await instanceToken.balanceOf(acc2);
         expectEvent(tx, "UnStake", { investor: acc2, amount: balanceAfter });
         //before third stake , un stake value = 108.5753
-        expect(Number(balanceAfter)).to.be.closeTo(Number(ether('108.7129')), Number(ether('0.00008')));
+        expect(Number(balanceAfter)).to.be.closeTo(Number(ether('108.7041')), Number(ether('0.00008')));
       });
     });
   });
