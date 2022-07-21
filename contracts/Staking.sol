@@ -141,8 +141,7 @@ contract Staking is Ownable, IStaking {
         require(
             block.timestamp >
                 investorList[msg.sender].lastTimeStake +
-                    stakingParams.cooldownPeriod ||
-                investorList[msg.sender].startDate == 0,
+                    stakingParams.cooldownPeriod,
             "Error : for re-staking wait 10 days"
         );
         require(amount_ > 0, "Error : you can't stake 0 tokens");
@@ -161,9 +160,6 @@ contract Staking is Ownable, IStaking {
             "Error : your stake value too high"
         );
         stakingTotalAmount += amount_;
-        if (investorList[msg.sender].startDate == 0) {
-            investorList[msg.sender].startDate = block.timestamp;
-        }
         investorList[msg.sender].lastTimeStake = block.timestamp;
         token.safeTransferFrom(msg.sender, address(this), amount_);
         emit Stake(msg.sender, amount_);

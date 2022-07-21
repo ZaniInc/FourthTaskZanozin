@@ -12,14 +12,12 @@ interface IStaking {
     /**
      * @dev Store info about beneficiaries
      *
-     * @param startDate - when user call 'stake' in first time
      * @param stakingAmount - how many tokens user staked
      * @param userRewardPerTokens - how many reward user accumulated
      * @param reward - how many reward will be collected by user
      * @param lastTimeStake - last time when user stake tokens
      */
     struct Investor {
-        uint256 startDate;
         uint256 stakingAmount;
         uint256 userRewardPerTokens;
         uint256 reward;
